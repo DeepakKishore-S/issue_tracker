@@ -5,6 +5,7 @@ import 'package:github_issue_tracker/view/issue_search_screen.dart';
 
 import '../core/api_status.dart';
 import '../core/strings.dart';
+import '../provider/theme_view_model.dart';
 
 class LoginView extends ConsumerWidget {
   static const routeName = "/login_view";
@@ -15,8 +16,39 @@ class LoginView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+    final themeMode = ref.watch(themeProvider);
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor:
+            themeMode == ThemeMode.dark ? Colors.black : Colors.white,
+        actions: [
+          PopupMenuButton<ThemeMode>(
+            icon: const Icon(Icons.palette),
+            onSelected: (ThemeMode newMode) {
+              ref
+                  .read(themeProvider.notifier)
+                  .setTheme(newMode); // Set the selected theme
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                const PopupMenuItem(
+                  value: ThemeMode.system,
+                  child: Text("System Theme"),
+                ),
+                const PopupMenuItem(
+                  value: ThemeMode.light,
+                  child: Text("Light Theme"),
+                ),
+                const PopupMenuItem(
+                  value: ThemeMode.dark,
+                  child: Text("Dark Theme"),
+                ),
+              ];
+            },
+          ),
+        ],
+      ),
       body: SizedBox(
         width: double.maxFinite,
         child: Column(
@@ -44,14 +76,15 @@ class LoginView extends ConsumerWidget {
             SizedBox(
               width: width * 0.8,
               height: height * 0.05,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor:
+                      themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 onPressed: () async {
-                  
                   final result = await AuthenticationService.signInWithGitHub();
 
                   if (result is Success) {
@@ -59,14 +92,18 @@ class LoginView extends ConsumerWidget {
                       builder: (context) => const IssueSearchScreen(),
                     ));
                   } else if (result is Failure) {
-                    
-                    
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(result.message)),
                     );
                   }
                 },
-                child: const Text("Sign in with GitHub"),
+                child: Text(
+                  "Sign in with GitHub",
+                  style: TextStyle(
+                      color: themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black),
+                ),
               ),
             ),
             const SizedBox(height: 10),
@@ -79,8 +116,12 @@ class LoginView extends ConsumerWidget {
                     builder: (context) => const IssueSearchScreen(),
                   ));
                 },
-                child: const Text(
+                child: Text(
                   "Guest",
+                  style: TextStyle(
+                      color: themeMode == ThemeMode.dark
+                          ? Colors.white
+                          : Colors.black),
                 ),
               ),
             ),

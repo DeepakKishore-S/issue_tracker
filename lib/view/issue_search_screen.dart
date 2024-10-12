@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:github_issue_tracker/provider/theme_view_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../core/snack_bar.dart';
 import '../model/issue_model.dart';
@@ -33,16 +34,32 @@ class _RepoSearchScreenState extends ConsumerState<IssueSearchScreen> {
     final isOpen = ref.watch(openIssuesProvider);
     final error = ref.watch(issuesProvider.notifier).error;
     final isLoading = ref.watch(issuesProvider.notifier).loading;
+    final themeMode = ref.watch(themeProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: _isSearching ? _buildSearchField() : const Text('Repo Issues'),
-        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+        title: _isSearching
+            ? _buildSearchField()
+            : Text(
+                'Repo Issues',
+                style: TextStyle(
+                  color: themeMode == ThemeMode.dark
+                      ? Colors.white70
+                      : Colors.grey[800],
+                ),
+              ),
+        backgroundColor:
+            themeMode == ThemeMode.dark ? Colors.black : Colors.white,
         elevation: 1,
         actions: [
           IconButton(
-            icon: Icon(_isSearching ? Icons.close : Icons.search,
-                color: Colors.black),
+            icon: Icon(
+              _isSearching ? Icons.close : Icons.search,
+              color: ref.watch(themeProvider) == ThemeMode.dark
+                  ? Colors.white70
+                  : Colors.grey[800],
+            ),
             onPressed: () {
               setState(() {
                 _isSearching = !_isSearching;
@@ -125,7 +142,15 @@ class _RepoSearchScreenState extends ConsumerState<IssueSearchScreen> {
             if (issuesState.isEmpty &&
                 !ref.watch(issuesProvider.notifier).loading &&
                 error == null)
-              const Expanded(child: Center(child: Text('No issues found.'))),
+              Expanded(
+                  child: Center(
+                      child: Text(
+                'No issues found.',
+                style: TextStyle(
+                    color: themeMode == ThemeMode.dark
+                        ? Colors.white70
+                        : Colors.grey[800]),
+              ))),
           ],
         ),
       ),
@@ -145,7 +170,12 @@ class _RepoSearchScreenState extends ConsumerState<IssueSearchScreen> {
           borderRadius: BorderRadius.circular(8.0),
           borderSide: BorderSide.none,
         ),
-        prefixIcon: const Icon(Icons.search, color: Colors.black),
+        prefixIcon: Icon(
+          Icons.search,
+          color: ref.watch(themeProvider) == ThemeMode.dark
+              ? Colors.white70
+              : Colors.grey[800],
+        ),
       ),
       onSubmitted: (value) {
         final regex = RegExp(r'^[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$');
@@ -170,7 +200,9 @@ class _RepoSearchScreenState extends ConsumerState<IssueSearchScreen> {
       child: Container(
         height: 40,
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: ref.watch(themeProvider) == ThemeMode.dark
+              ? Colors.grey[800]
+              : Colors.white70,
           borderRadius: BorderRadius.circular(20.0),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
