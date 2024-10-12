@@ -24,6 +24,3 @@ This Flutter application allows users to search for GitHub issues by entering th
 
 - **State Management**: Ensuring smooth state transitions while fetching data and displaying loading indicators required careful handling of the application state.
 
-## Conclusion
-
-This project has enhanced my skills in Flutter development, state management, and API integration. I have gained valuable experience in building responsive and user-friendly applications.
